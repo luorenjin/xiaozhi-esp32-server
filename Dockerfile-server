@@ -1,6 +1,10 @@
 # 第一阶段：构建Python依赖
 FROM python:3.10-slim AS builder
 
+# 创建 pip 配置文件并写入阿里云镜像地址
+RUN mkdir -p /root/.pip && \
+    echo "[global]\nindex-url = https://mirrors.aliyun.com/pypi/simple/\n"  > /root/.pip/pip.conf
+
 WORKDIR /app
 
 COPY main/xiaozhi-server/requirements.txt .
@@ -10,6 +14,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 第二阶段：生产镜像
 FROM python:3.10-slim
+
+RUN ls -al /etc/apt/sources.list.d
+
+RUN cat /etc/apt/sources.list.d/debian.sources
+
+# 步骤7优化后的配置
+RUN echo "deb http://mirrors.aliyun.com/debian/ bookworm main non-free contrib" > /etc/apt/sources.list && \
+    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main" >> /etc/apt/sources.list && \
+    echo "deb http://mirrors.aliyun.com/debian/ bookworm-updates main non-free contrib" >> /etc/apt/sources.list && \
+    echo "deb http://mirrors.aliyun.com/debian/ bookworm-backports main non-free contrib" >> /etc/apt/sources.list && \
+    # 清除残留配置
+    rm -rf /etc/apt/sources.list.d/*
+
 
 WORKDIR /opt/xiaozhi-esp32-server
 

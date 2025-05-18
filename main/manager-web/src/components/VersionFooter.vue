@@ -1,6 +1,6 @@
 <template>
     <div class="copyright">
-        ©2025 xiaozhi-esp32-server v{{ version }}
+        ©2025 Fich(非池) v{{ version }}
     </div>
 </template>
 
