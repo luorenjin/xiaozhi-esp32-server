@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -46,16 +47,18 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
     }
 
     @Override
-    public AgentEntity getAgentById(String id) {
+    public AgentDTO getAgentById(String id) {
         AgentEntity agent = agentDao.selectById(id);
         if (agent != null && agent.getMemModelId() != null && agent.getMemModelId().equals(Constant.MEMORY_NO_MEM)) {
             agent.setChatHistoryConf(Constant.ChatHistoryConfEnum.IGNORE.getCode());
-        } else if (agent != null && agent.getMemModelId() != null
-                && !agent.getMemModelId().equals(Constant.MEMORY_NO_MEM)
-                && agent.getChatHistoryConf() == null) {
+        } else if (agent != null && agent.getMemModelId() != null && agent.getChatHistoryConf() == null) {
             agent.setChatHistoryConf(Constant.ChatHistoryConfEnum.RECORD_TEXT_AUDIO.getCode());
         }
-        return agent;
+        AgentDTO agentDTO = null;
+        if (agent != null) {
+            agentDTO = getAgentDTO(agent);
+        }
+        return agentDTO;
     }
 
     @Override
@@ -90,34 +93,37 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         QueryWrapper<AgentEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         List<AgentEntity> agents = agentDao.selectList(wrapper);
-        return agents.stream().map(agent -> {
-            AgentDTO dto = new AgentDTO();
-            dto.setId(agent.getId());
-            dto.setAgentName(agent.getAgentName());
-            dto.setSystemPrompt(agent.getSystemPrompt());
+        return agents.stream().map(this::getAgentDTO).collect(Collectors.toList());
+    }
 
-            // 获取 TTS 模型名称
-            dto.setTtsModelName(modelConfigService.getModelNameById(agent.getTtsModelId()));
+    @NotNull
+    private AgentDTO getAgentDTO(AgentEntity agent) {
+        AgentDTO dto = new AgentDTO();
+        dto.setId(agent.getId());
+        dto.setAgentName(agent.getAgentName());
+        dto.setSystemPrompt(agent.getSystemPrompt());
 
-            // 获取 LLM 模型名称
-            dto.setLlmModelName(modelConfigService.getModelNameById(agent.getLlmModelId()));
+        // 获取 TTS 模型名称
+        dto.setTtsModelName(modelConfigService.getModelNameById(agent.getTtsModelId()));
 
-            // 获取 VLLM 模型名称
-            dto.setVllmModelName(modelConfigService.getModelNameById(agent.getVllmModelId()));
+        // 获取 LLM 模型名称
+        dto.setLlmModelName(modelConfigService.getModelNameById(agent.getLlmModelId()));
 
-            // 获取记忆模型名称
-            dto.setMemModelId(agent.getMemModelId());
+        // 获取 VLLM 模型名称
+        dto.setVllmModelName(modelConfigService.getModelNameById(agent.getVllmModelId()));
 
-            // 获取 TTS 音色名称
-            dto.setTtsVoiceName(timbreModelService.getTimbreNameById(agent.getTtsVoiceId()));
+        // 获取记忆模型名称
+        dto.setMemModelId(agent.getMemModelId());
 
-            // 获取智能体最近的最后连接时长
-            dto.setLastConnectedAt(deviceService.getLatestLastConnectionTime(agent.getId()));
+        // 获取 TTS 音色名称
+        dto.setTtsVoiceName(timbreModelService.getTimbreNameById(agent.getTtsVoiceId()));
 
-            // 获取设备数量
-            dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
-            return dto;
-        }).collect(Collectors.toList());
+        // 获取智能体最近的最后连接时长
+        dto.setLastConnectedAt(deviceService.getLatestLastConnectionTime(agent.getId()));
+
+        // 获取设备数量
+        dto.setDeviceCount(getDeviceCountByAgentId(agent.getId()));
+        return dto;
     }
 
     @Override
@@ -154,7 +160,7 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
     @Override
     public boolean checkAgentPermission(String agentId, Long userId) {
         // 获取智能体信息
-        AgentEntity agent = getAgentById(agentId);
+        AgentDTO agent = getAgentById(agentId);
         if (agent == null) {
             return false;
         }

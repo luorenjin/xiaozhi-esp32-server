@@ -63,8 +63,7 @@ public class OTAController {
     @Operation(summary = "设备快速检查激活状态")
     @PostMapping("activate")
     public ResponseEntity<String> activateDevice(
-            @Parameter(name = "Device-Id", description = "设备唯一标识", required = true, in = ParameterIn.HEADER) @RequestHeader("Device-Id") String deviceId,
-            @Parameter(name = "Client-Id", description = "客户端标识", required = false, in = ParameterIn.HEADER) @RequestHeader(value = "Client-Id", required = false) String clientId) {
+            @Parameter(name = "Device-Id", description = "设备唯一标识", required = true, in = ParameterIn.HEADER) @RequestHeader("Device-Id") String deviceId) {
         if (StringUtils.isBlank(deviceId)) {
             return ResponseEntity.status(202).build();
         }

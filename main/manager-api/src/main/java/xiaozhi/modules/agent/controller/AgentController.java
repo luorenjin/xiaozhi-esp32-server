@@ -88,9 +88,9 @@ public class AgentController {
     @GetMapping("/{id}")
     @Operation(summary = "获取智能体详情")
     @RequiresPermissions("sys:role:normal")
-    public Result<AgentEntity> getAgentById(@PathVariable("id") String id) {
-        AgentEntity agent = agentService.getAgentById(id);
-        return new Result<AgentEntity>().ok(agent);
+    public Result<AgentDTO> getAgentById(@PathVariable("id") String id) {
+        AgentDTO agent = agentService.getAgentById(id);
+        return new Result<AgentDTO>().ok(agent);
     }
 
     @PostMapping
@@ -150,7 +150,7 @@ public class AgentController {
 
     private Result<Void> updateAgentById(String id, AgentUpdateDTO dto) {
         // 先查询现有实体
-        AgentEntity existingEntity = agentService.getAgentById(id);
+        AgentDTO existingEntity = agentService.getAgentById(id);
         if (existingEntity == null) {
             return new Result<Void>().error("智能体不存在");
         }
@@ -219,7 +219,8 @@ public class AgentController {
             // 删除音频数据
             agentChatHistoryService.deleteByAgentId(existingEntity.getId(), true, false);
         }
-        agentService.updateById(existingEntity);
+        AgentEntity entity = ConvertUtils.sourceToTarget(dto, AgentEntity.class);
+        agentService.updateById(entity);
         return new Result<>();
     }
 

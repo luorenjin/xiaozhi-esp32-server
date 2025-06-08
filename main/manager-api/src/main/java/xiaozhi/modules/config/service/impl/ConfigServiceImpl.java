@@ -15,7 +15,7 @@ import xiaozhi.common.exception.RenException;
 import xiaozhi.common.redis.RedisKeys;
 import xiaozhi.common.redis.RedisUtils;
 import xiaozhi.common.utils.JsonUtils;
-import xiaozhi.modules.agent.entity.AgentEntity;
+import xiaozhi.modules.agent.dto.AgentDTO;
 import xiaozhi.modules.agent.entity.AgentTemplateEntity;
 import xiaozhi.modules.agent.service.AgentService;
 import xiaozhi.modules.agent.service.AgentTemplateService;
@@ -96,7 +96,7 @@ public class ConfigServiceImpl implements ConfigService {
         }
 
         // 获取智能体信息
-        AgentEntity agent = agentService.getAgentById(device.getAgentId());
+        AgentDTO agent = agentService.getAgentById(device.getAgentId());
         if (agent == null) {
             throw new RenException("智能体未找到");
         }
@@ -153,8 +153,7 @@ public class ConfigServiceImpl implements ConfigService {
 
     /**
      * 构建配置信息
-     * 
-     * @param paramsList 系统参数列表
+     *
      * @return 配置信息
      */
     private Object buildConfig(Map<String, Object> config) {

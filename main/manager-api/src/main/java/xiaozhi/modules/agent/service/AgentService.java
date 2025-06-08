@@ -30,7 +30,7 @@ public interface AgentService extends BaseService<AgentEntity> {
      * @param id 智能体ID
      * @return 智能体实体
      */
-    AgentEntity getAgentById(String id);
+    AgentDTO getAgentById(String id);
 
     /**
      * 插入智能体

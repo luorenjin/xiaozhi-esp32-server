@@ -9,6 +9,7 @@ import xiaozhi.modules.device.dto.DevicePageUserDTO;
 import xiaozhi.modules.device.dto.DeviceReportReqDTO;
 import xiaozhi.modules.device.dto.DeviceReportRespDTO;
 import xiaozhi.modules.device.entity.DeviceEntity;
+import xiaozhi.modules.device.vo.DeviceValidateVO;
 import xiaozhi.modules.device.vo.UserShowDeviceListVO;
 
 public interface DeviceService extends BaseService<DeviceEntity> {
@@ -65,6 +66,15 @@ public interface DeviceService extends BaseService<DeviceEntity> {
     PageData<UserShowDeviceListVO> page(DevicePageUserDTO dto);
 
     /**
+     * 分页获取我绑定的设备信息
+     *
+     * @param dto 分页查找参数
+     * @param userId 用户id
+     * @return 用户列表分页数据
+     */
+    PageData<UserShowDeviceListVO> page(DevicePageUserDTO dto,Long userId);
+
+    /**
      * 根据MAC地址获取设备信息
      * 
      * @param macAddress MAC地址
@@ -88,4 +98,10 @@ public interface DeviceService extends BaseService<DeviceEntity> {
     Date getLatestLastConnectionTime(String agentId);
 
 
+    /**
+     * 验证激活码
+     * @param code 激活码
+     * @return 验证结果
+     */
+    DeviceValidateVO validate(String code);
 }
